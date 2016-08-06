@@ -54,24 +54,19 @@ func (bitreader *BitReader) ReadBits(n int) (value int) {
 
 func (bitwriter *BitWriter) writeBit(bit bool) (err error) {
     var e error
-    if bitwriter.offset == 7 {
-        e = bitwriter.bufio_writer.WriteByte(bitwriter.value)
-        if bit {
-            bitwriter.value = byte(0x01)
-        } else {
-            bitwriter.value = byte(0x00)
-        }
-        bitwriter.offset = 0
-        return e
+    if bit {
+        bitwriter.value = bitwriter.value<<1 + 1
     } else {
-        if bit {
-            bitwriter.value = bitwriter.value<<1 + 1
-        } else {
-            bitwriter.value = bitwriter.value<<1
-        }
-        bitwriter.offset++
-        return e
+        bitwriter.value = bitwriter.value<<1
     }
+    bitwriter.offset++
+    if bitwriter.offset == 8 {
+        e = bitwriter.bufio_writer.WriteByte(bitwriter.value)
+        e = bitwriter.bufio_writer.Flush()
+        bitwriter.value = byte(0x00)
+        bitwriter.offset = 0
+    }
+    return e
 }
 
 func (bitwriter *BitWriter) WriteUint(n uint, num_bits int) {
