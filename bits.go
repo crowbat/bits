@@ -18,7 +18,7 @@ type BitWriter struct {
     value byte
 }
 
-func (bitreader *BitReader) ReadBit() (bit bool, err error) {
+func (bitreader *BitReader) readBit() (bit bool, err error) {
     var e error
     if bitreader.offset == 0 {
         bitreader.offset = 8
@@ -39,7 +39,7 @@ func (bitreader *BitReader) ReadBits(n int) (value int) {
         log.Fatal("Cannot read more than 64 bits at once")
     }
     for i:=0; i<n; i++ {
-        next_bit, err := bitreader.ReadBit()
+        next_bit, err := bitreader.readBit()
         if err != nil {
             log.Fatal("Error reading bit")
         }
@@ -52,7 +52,7 @@ func (bitreader *BitReader) ReadBits(n int) (value int) {
     return v
 }
 
-func (bitwriter *BitWriter) WriteBit(bit bool) (err error) {
+func (bitwriter *BitWriter) writeBit(bit bool) (err error) {
     var e error
     if bitwriter.offset == 7 {
         e = bitwriter.bufio_writer.WriteByte(bitwriter.value)
@@ -81,10 +81,10 @@ func (bitwriter *BitWriter) WriteUint(n uint, num_bits int) {
     }
     for i:=num_bits; i>0; i-- {
         if n >= uint(math.Pow(2,float64(i-1))) {
-            e = bitwriter.WriteBit(true)
+            e = bitwriter.writeBit(true)
             n -= uint(math.Pow(2,float64(i-1)))
         } else {
-            e = bitwriter.WriteBit(false)
+            e = bitwriter.writeBit(false)
         }
         if e != nil {
             log.Fatal("Error writing bits")
@@ -94,6 +94,6 @@ func (bitwriter *BitWriter) WriteUint(n uint, num_bits int) {
 
 func (bitwriter *BitWriter) FinishByte() {
     for bitwriter.offset != 0 {
-        bitwriter.WriteBit(false)
+        bitwriter.writeBit(false)
     }
 }
