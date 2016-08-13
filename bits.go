@@ -1,4 +1,4 @@
-package main
+package bits
 
 import (
     "bufio"
@@ -7,13 +7,13 @@ import (
 )
 
 type BitReader struct {
-    bufio_reader *bufio.Reader
+    BufioReader *bufio.Reader
     offset int
     curr_byte byte
 }
 
 type BitWriter struct {
-    bufio_writer *bufio.Writer
+    BufioWriter *bufio.Writer
     offset int
     value byte
 }
@@ -22,7 +22,7 @@ func (bitreader *BitReader) readBit() (bit bool, err error) {
     var e error
     if bitreader.offset == 0 {
         bitreader.offset = 8
-        bitreader.curr_byte, e = bitreader.bufio_reader.ReadByte()
+        bitreader.curr_byte, e = bitreader.BufioReader.ReadByte()
         next_bit := bitreader.curr_byte & (1 << uint(bitreader.offset-1)) > 0
         bitreader.offset--
         return next_bit, e
@@ -61,8 +61,8 @@ func (bitwriter *BitWriter) writeBit(bit bool) (err error) {
     }
     bitwriter.offset++
     if bitwriter.offset == 8 {
-        e = bitwriter.bufio_writer.WriteByte(bitwriter.value)
-        e = bitwriter.bufio_writer.Flush()
+        e = bitwriter.BufioWriter.WriteByte(bitwriter.value)
+        e = bitwriter.BufioWriter.Flush()
         bitwriter.value = byte(0x00)
         bitwriter.offset = 0
     }
