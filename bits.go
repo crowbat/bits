@@ -33,7 +33,7 @@ func (bitreader *BitReader) readBit() (bit bool, err error) {
     }
 }
 
-func (bitreader *BitReader) ReadBits(n int) (value int) {
+func (bitreader *BitReader) ReadBits(n int) (value int, err error) {
     v := 0
     if n > 64 {
         log.Fatal("Cannot read more than 64 bits at once")
@@ -41,7 +41,7 @@ func (bitreader *BitReader) ReadBits(n int) (value int) {
     for i:=0; i<n; i++ {
         next_bit, err := bitreader.readBit()
         if err != nil {
-            log.Fatal("Error reading bit")
+            return v, err
         }
         if next_bit {
             v = 2*v + 1
@@ -49,7 +49,7 @@ func (bitreader *BitReader) ReadBits(n int) (value int) {
             v = 2*v
         }
     }
-    return v
+    return v, err
 }
 
 func (bitwriter *BitWriter) writeBit(bit bool) (err error) {
